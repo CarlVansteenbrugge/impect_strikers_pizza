@@ -15,7 +15,7 @@ df = load_striker_data()
 min_age = int(df['Age'].min())
 max_age = int(df['Age'].max())
 
-# Percentile-kolommen (ook nodig voor resetknop)
+# Percentile-kolommen
 percentile_columns = [
     'PERCENTILE IMPECT_SCORE_PACKING',
     'PERCENTILE PROGRESSION_SCORE_PACKING',
@@ -81,7 +81,7 @@ if selected_club:
 else:
     df_club_filtered = df_comp_filtered
 
-# Percentile filters
+# --- Percentile filters ---
 st.sidebar.header("📊 Advanced Percentile Filters")
 df_percentile_filtered = df_club_filtered.copy()
 
@@ -97,17 +97,25 @@ for col in percentile_columns:
             df_percentile_filtered[col].between(selected_range[0], selected_range[1])
         ]
 
-# Spelerselectie
+# --- Filter de spelerslijst op basis van de percentielen en andere filters ---
 player_names = sorted(df_percentile_filtered['playerName'].dropna().unique().tolist())
-selected_player = st.sidebar.selectbox("Player", options=[""] + player_names, key="Player")
 
-# Pizza plot tonen
-if selected_player:
-    st.subheader(f"🎯 Pizza Plot: {selected_player}")
-    fig = Pizza_plot_forwards(selected_player, df_percentile_filtered)
-    buf = BytesIO()
-    fig.savefig(buf, format="png", dpi=150, bbox_inches="tight")
-    st.image(buf.getvalue(), use_column_width=False, width=500)
+# Als de lijst leeg is, toon een melding
+if len(player_names) == 0:
+    st.warning("⚠️ Geen enkele speler voldoet aan de huidige filters.")
 else:
-    st.info("👈 Selecteer een speler in de zijbalk om de Pizza Plot te tonen.")
+    # Spelerselectie
+    selected_player = st.sidebar.selectbox("Player", options=[""] + player_names, key="Player")
+
+    # --- Plot tonen als speler gekozen is ---
+    if selected_player:
+        player_df = df_percentile_filtered[df_percentile_filtered['playerName'] == selected_player]
+        if not player_df.empty:
+            st.subheader(f"🎯 Pizza Plot: {selected_player}")
+            fig = Pizza_plot_forwards(selected_player, df_percentile_filtered)
+            buf = BytesIO()
+            fig.savefig(buf, format="png", dpi=150, bbox_inches="tight")
+            st.image(buf.getvalue(), use_column_width=False, width=500)
+        else:
+            st.warning("⚠️ Deze speler voldoet niet aan de huidige percentile filters.")
 
