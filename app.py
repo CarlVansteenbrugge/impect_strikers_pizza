@@ -16,8 +16,14 @@ st.title("⚽ Striker Performance Dashboard (Pizza Plots)")
 
 # --- Resetknop ---
 if st.sidebar.button("🔄 Reset Filters"):
-    for key in st.session_state.keys():
-        del st.session_state[key]
+    st.session_state["Age"] = (min_age, max_age)
+    st.session_state["Competition"] = ""
+    st.session_state["Club"] = ""
+    st.session_state["Player"] = ""
+
+    for col in percentile_columns:
+        st.session_state[col] = (0, 100)
+
     st.experimental_rerun()
 
 # --- Sidebar Filters ---
