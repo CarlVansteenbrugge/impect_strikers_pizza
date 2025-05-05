@@ -11,55 +11,11 @@ st.set_page_config(layout="wide", page_title="Striker Pizza Dashboard")
 # --- Data inladen ---
 df = load_striker_data()
 
-# --- Titel ---
-st.title("⚽ Striker Performance Dashboard (Pizza Plots)")
-
-# --- Resetknop ---
-if st.sidebar.button("🔄 Reset Filters"):
-    st.session_state["Age"] = (min_age, max_age)
-    st.session_state["Competition"] = ""
-    st.session_state["Club"] = ""
-    st.session_state["Player"] = ""
-
-    for col in percentile_columns:
-        st.session_state[col] = (0, 100)
-
-    st.experimental_rerun()
-
-# --- Sidebar Filters ---
-st.sidebar.header("🔎 Filters")
-
-# Leeftijd filter
+# Leeftijdsgrenzen bepalen
 min_age = int(df['Age'].min())
 max_age = int(df['Age'].max())
-age_range = st.sidebar.slider("Age", min_value=min_age, max_value=max_age, value=(min_age, max_age), key="Age")
 
-# Stap 1: Filter op leeftijd
-df_age_filtered = df[(df['Age'] >= age_range[0]) & (df['Age'] <= age_range[1])]
-
-# --- Stap 2: Competitie en Club als optionele filters ---
-
-# Competitie filter (optioneel)
-competitions = sorted(df_age_filtered['competitionName'].dropna().unique().tolist())
-selected_competition = st.sidebar.selectbox("Competition (optioneel)", options=[""] + competitions, key="Competition")
-
-if selected_competition:
-    df_comp_filtered = df_age_filtered[df_age_filtered['competitionName'] == selected_competition]
-else:
-    df_comp_filtered = df_age_filtered
-
-# Club filter (optioneel)
-clubs = sorted(df_comp_filtered['squadName'].dropna().unique().tolist())
-selected_club = st.sidebar.selectbox("Club (optioneel)", options=[""] + clubs, key="Club")
-
-if selected_club:
-    df_club_filtered = df_comp_filtered[df_comp_filtered['squadName'] == selected_club]
-else:
-    df_club_filtered = df_comp_filtered
-
-# --- Stap 3: Dynamische percentile sliders ---
-st.sidebar.header("📊 Advanced Percentile Filters")
-
+# Percentile-kolommen (ook nodig voor resetknop)
 percentile_columns = [
     'PERCENTILE IMPECT_SCORE_PACKING',
     'PERCENTILE PROGRESSION_SCORE_PACKING',
@@ -86,25 +42,66 @@ percentile_columns = [
     'PERCENTILE OFFENSIVE_HEADER_SCORE'
 ]
 
+# --- Resetknop ---
+if st.sidebar.button("🔄 Reset Filters"):
+    st.session_state.update({
+        "Age": (min_age, max_age),
+        "Competition": "",
+        "Club": "",
+        "Player": "",
+        **{col: (0, 100) for col in percentile_columns}
+    })
+    st.rerun()
+
+# --- Titel ---
+st.title("⚽ Striker Performance Dashboard (Pizza Plots)")
+
+# --- Sidebar Filters ---
+st.sidebar.header("🔎 Filters")
+
+# Leeftijd
+age_range = st.sidebar.slider("Age", min_value=min_age, max_value=max_age, value=(min_age, max_age), key="Age")
+df_age_filtered = df[(df['Age'] >= age_range[0]) & (df['Age'] <= age_range[1])]
+
+# Competitie (optioneel)
+competitions = sorted(df_age_filtered['competitionName'].dropna().unique().tolist())
+selected_competition = st.sidebar.selectbox("Competition (optioneel)", options=[""] + competitions, key="Competition")
+
+if selected_competition:
+    df_comp_filtered = df_age_filtered[df_age_filtered['competitionName'] == selected_competition]
+else:
+    df_comp_filtered = df_age_filtered
+
+# Club (optioneel)
+clubs = sorted(df_comp_filtered['squadName'].dropna().unique().tolist())
+selected_club = st.sidebar.selectbox("Club (optioneel)", options=[""] + clubs, key="Club")
+
+if selected_club:
+    df_club_filtered = df_comp_filtered[df_comp_filtered['squadName'] == selected_club]
+else:
+    df_club_filtered = df_comp_filtered
+
+# Percentile filters
+st.sidebar.header("📊 Advanced Percentile Filters")
 df_percentile_filtered = df_club_filtered.copy()
 
-# Pas de percentile filters toe
 for col in percentile_columns:
     if col in df_percentile_filtered.columns:
         selected_range = st.sidebar.slider(
             label=col.replace('PERCENTILE ', ''),
             min_value=0, max_value=100,
-            value=(0, 100), key=col
+            value=(0, 100),
+            key=col
         )
         df_percentile_filtered = df_percentile_filtered[
             df_percentile_filtered[col].between(selected_range[0], selected_range[1])
         ]
 
-# --- Stap 4: Player selector helemaal onderaan ---
+# Spelerselectie
 player_names = sorted(df_percentile_filtered['playerName'].dropna().unique().tolist())
 selected_player = st.sidebar.selectbox("Player", options=[""] + player_names, key="Player")
 
-# --- Plot als speler gekozen is ---
+# Pizza plot tonen
 if selected_player:
     st.subheader(f"🎯 Pizza Plot: {selected_player}")
     fig = Pizza_plot_forwards(selected_player, df_percentile_filtered)
