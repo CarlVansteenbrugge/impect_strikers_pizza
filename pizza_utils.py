@@ -32,7 +32,8 @@ params = ['PERCENTILE IMPECT_SCORE_PACKING',
  'PERCENTILE AVAILABILITY_IN_THE_BOX_SCORE',
 
  'PERCENTILE RATIO_MINUTES_PER_SHOT_XG',
- 'PERCENTILE RATIO_POSTSHOT_XG_SHOT_XG'
+
+ 'PERCENTILE RATIO_POSTSHOT_XG_SHOT_XG',
  'PERCENTILE CLOSE_RANGE_SHOT_SCORE',
  'PERCENTILE ONE_VS_ONE_AGAINST_GK_SCORE',
  'PERCENTILE HEADER_SHOT_SCORE',
@@ -55,19 +56,20 @@ param_labels = {
     
     'PERCENTILE TOTAL_TOUCHES': 'Total\nTouches',
     'PERCENTILE TOTAL_TOUCHES_IN_PACKING_ZONE_AM': 'Touches\nAM Zone',
-    'PERCENTILE TOTAL_TOUCHES_IN_PACKING_ZONE_IBW': 'Touches\nIB Wide',
-    'PERCENTILE TOTAL_TOUCHES_IN_PACKING_ZONE_IB': 'Touches\nIB Central',
+    'PERCENTILE TOTAL_TOUCHES_IN_PACKING_ZONE_IBW': 'Touches\nIn Behind Wide',
+    'PERCENTILE TOTAL_TOUCHES_IN_PACKING_ZONE_IB': 'Touches\nIn Behind Central',
     
     'PERCENTILE AVAILABILITY_OUT_WIDE_SCORE': 'Availability\nOut Wide',
-    'PERCENTILE AVAILABILITY_BTL_SCORE': 'Availability\nBTL',
+    'PERCENTILE AVAILABILITY_BTL_SCORE': 'Availability\nBetween the Lines',
     'PERCENTILE AVAILABILITY_FDR_SCORE': 'Availability\nDeep Runs',
-    'PERCENTILE AVAILABILITY_IN_THE_BOX_SCORE': 'Availability\nBox',
+    'PERCENTILE AVAILABILITY_IN_THE_BOX_SCORE': 'Availability\nIn the Box',
     
     'PERCENTILE RATIO_MINUTES_PER_SHOT_XG': 'Minutes\nper Shot xG',
+
     'PERCENTILE RATIO_POSTSHOT_XG_SHOT_XG': 'Postshot xG/xG',
     'PERCENTILE CLOSE_RANGE_SHOT_SCORE': 'Close Range\nShots',
     'PERCENTILE ONE_VS_ONE_AGAINST_GK_SCORE': '1v1 vs GK\nScore',
-    'PERCENTILE HEADER_SHOT_SCORE': 'Header\nShots',
+    'PERCENTILE HEADER_SHOT_SCORE': 'Header\nShot Score',
     'PERCENTILE OFFENSIVE_HEADER_SCORE': 'Offensive\nHeader'
 }
 
@@ -79,7 +81,7 @@ def Pizza_plot_forwards(player_name,df=None):
     values = [row[param] for param in params]
     labels = [param_labels.get(p, p) for p in params]
 
-    slice_colors = ["#43A427"] * 4 + ["#f65252"] *3 + ["#F2BF11"] * 2 + ["#20C581"] * 4 + ["#4D6CF8"] * 4 + ["#B45EE3"] * 6
+    slice_colors = ["#43A427"] * 4 + ["#f65252"] *3 + ["#fbc921"] * 2 + ["#20C581"] * 4 + ["#4D6CF8"] * 4 + ["#ceea3d"] * 1+ ["#B45EE3"] * 5
     text_colors = ["#000000"] * len(params)
 
     baker = PyPizza(
