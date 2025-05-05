@@ -3,4 +3,5 @@ pandas
 matplotlib
 mplsoccer
 scipy
-impectPy
+git+https://github.com/ImpectAPI/impectPy.git@v2.4.2
+
